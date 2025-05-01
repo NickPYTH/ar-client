@@ -1,46 +1,19 @@
-import {GetTokenResponseType, userAPI} from "service/UserService";
-import React, {useEffect} from "react";
-import {Button, NotificationArgsProps} from "antd";
+import {userAPI} from "service/UserService";
+import React, {useEffect, useState} from "react";
+import {NotificationArgsProps} from "antd";
 import {useSelector} from "react-redux";
 import {RootStateType} from "store/store";
+import {Navigate, useLocation} from "react-router-dom";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
 export const Navbar = () => {
 
     // States
+    let location = useLocation();
     const api = useSelector((state: RootStateType) => state.currentUser.notificationContextApi);
-    // -----
-
-    // Web requests
-    const [getTokens, {
-        data: getTokensResponse,
-        error: getTokensError,
-    }] = userAPI.useCreateMutation();
-    // -----
-
-    // Effects
-    useEffect(() => {
-        getTokens({
-            username: "nick",
-            password: "27062000"
-        })
-    }, []);
-    useEffect(() => {
-        if (getTokensResponse) {
-            console.log(getTokensResponse)
-            if ('access' in getTokensResponse) {
-                let response: GetTokenResponseType = getTokensResponse as GetTokenResponseType;
-                showSuccessNotification('topRight', response.access ?? "");
-            }
-        }
-    }, [getTokensResponse]);
-    useEffect(() => {
-        if (getTokensError)
-            if ('data' in getTokensError) {
-                let response: GetTokenResponseType = getTokensError.data as GetTokenResponseType;
-                showErrorNotification('topRight', response.detail ?? "");
-            }
-    }, [getTokensError]);
+    const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem('access'));
+    const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refresh'));
+    const [shouldRedirect, setShouldRedirect] = useState(false);
     // -----
 
     // Notifications
@@ -67,9 +40,52 @@ export const Navbar = () => {
     };
     // -----
 
+    // Web requests
+    const [verifyTokenRequest, {
+        isError: verifyTokenIsError,
+    }] = userAPI.useVerifyMutation();
+    const [refreshTokenRequest, {
+        data: refreshTokenData,
+        isSuccess: refreshTokenIsSuccess,
+        isError: refreshTokenIsError,
+    }] = userAPI.useRefreshMutation();
+    // -----
+
+    // Effects
+    useEffect(() => {
+        if (accessToken && refreshToken) {
+            verifyTokenRequest({token: accessToken});
+        } else {
+            localStorage.clear();
+            if (location.pathname.indexOf('login') == -1)
+                setShouldRedirect(true);
+        }
+    }, []);
+    useEffect(() => {
+        if (verifyTokenIsError && refreshToken) {
+            refreshTokenRequest({'refresh': refreshToken})
+        }
+    }, [verifyTokenIsError]);
+    useEffect(() => {
+        if (refreshTokenIsSuccess && refreshTokenData) {
+            let accessToken = refreshTokenData.access;
+            if (accessToken) {
+                localStorage.setItem('access', accessToken);
+                showInfoNotification('topRight', 'Токен обновлен')
+            }
+        }
+    }, [refreshTokenIsSuccess]);
+    useEffect(() => {
+        if (refreshTokenIsError) {
+            localStorage.clear();
+            setShouldRedirect(true);
+        }
+    }, [refreshTokenIsError])
+    // -----
+
+    if (shouldRedirect) return (<Navigate to="/login" />);
     return (
         <div>
-            <Button onClick={() => showInfoNotification('topRight', 'kek')}>kek</Button>
             Navbar
         </div>
     )

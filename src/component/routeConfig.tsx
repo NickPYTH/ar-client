@@ -2,16 +2,19 @@ import {RouteProps} from "react-router-dom";
 import React from "react";
 import UserPage from "pages/UserPage/ui/UserPage";
 import {MainPage} from "pages/MainPage";
+import {LoginPage} from "pages/LoginPage";
 
 export enum AppRoutes {
     MAIN = 'MAIN',
     USER = 'USER',
+    LOGIN = 'LOGIN',
 }
 
 export const RoutePath: Record<AppRoutes, string> = {
     [AppRoutes.MAIN]: '/',
     [AppRoutes.MAIN]: '/main',
     [AppRoutes.USER]: '/user',
+    [AppRoutes.LOGIN]: '/login',
 }
 
 export const routeConfig: Record<AppRoutes, RouteProps> = {
@@ -22,5 +25,9 @@ export const routeConfig: Record<AppRoutes, RouteProps> = {
     [AppRoutes.MAIN]: {
         path: RoutePath.MAIN,
         element: <MainPage/>
+    },
+    [AppRoutes.LOGIN]: {
+        path: RoutePath.LOGIN,
+        element: <LoginPage/>
     },
 }
