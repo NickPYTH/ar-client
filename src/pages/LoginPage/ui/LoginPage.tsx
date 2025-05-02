@@ -97,7 +97,7 @@ const LoginPage = () => {
     }, [getTokensError]);
     // -----
 
-    if (shouldRedirect) return (<Navigate to="/main" />);
+    if (shouldRedirect) return (<Navigate to="/article_list" />);
     return(
         <Flex justify={'center'} align={'center'} style={{height: window.innerHeight}}>
             <Space direction={'vertical'} align={'center'}>

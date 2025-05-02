@@ -1,9 +1,9 @@
-import {BrowserRouter, Route, Routes, useLocation} from 'react-router-dom'
+import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import React from "react";
 import {Navbar} from "shared/component/Navbar";
 import {Result} from "antd";
 import {routeConfig} from "./routeConfig";
-import {MainPage} from "pages/MainPage";
+import {ArticleListPage} from "pages/ArticleListPage";
 
 
 export const Router: React.FC = () => {
@@ -21,7 +21,7 @@ export const Router: React.FC = () => {
                 ))}
                 <Route
                     path=''
-                    element={<MainPage/>}
+                    element={<ArticleListPage/>}
                 />
                 <Route
                     path='*'

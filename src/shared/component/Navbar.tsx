@@ -1,9 +1,18 @@
 import {userAPI} from "service/UserService";
 import React, {useEffect, useState} from "react";
-import {NotificationArgsProps} from "antd";
+import {Menu, MenuProps, NotificationArgsProps} from "antd";
 import {useSelector} from "react-redux";
 import {RootStateType} from "store/store";
 import {Navigate, useLocation} from "react-router-dom";
+
+type MenuItem = Required<MenuProps>['items'][number];
+
+const items: MenuItem[] = [
+    {
+        label: 'Статьи',
+        key: 'main',
+    },
+]
 
 type NotificationPlacement = NotificationArgsProps['placement'];
 export const Navbar = () => {
@@ -14,6 +23,7 @@ export const Navbar = () => {
     const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem('access'));
     const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refresh'));
     const [shouldRedirect, setShouldRedirect] = useState(false);
+    const [currentMenuItem, setCurrentMenuItem] = useState('main');
     // -----
 
     // Notifications
@@ -83,10 +93,15 @@ export const Navbar = () => {
     }, [refreshTokenIsError])
     // -----
 
+    // Handlers
+    const onClick: MenuProps['onClick'] = (e) => {
+        console.log('click ', e);
+        setCurrentMenuItem(e.key);
+    };
+    // -----
+
     if (shouldRedirect) return (<Navigate to="/login" />);
     return (
-        <div>
-            Navbar
-        </div>
+        <Menu onClick={onClick} selectedKeys={[currentMenuItem]} mode="horizontal" items={items} style={{marginBottom: 20}}/>
     )
 }

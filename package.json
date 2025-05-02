@@ -37,7 +37,10 @@
     "@reduxjs/toolkit": "^1.6.1",
     "antd": "^5.24.5",
     "react": "^17.0.2",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^17.0.2",
+    "react-draggable": "^4.4.6",
     "react-redux": "^7.2.4",
     "react-router-dom": "^6.17.0"
   }
