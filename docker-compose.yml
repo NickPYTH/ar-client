@@ -3,4 +3,4 @@ services:
     build:
       .
     ports:
-      - "7788:7777"
+      - "7888:80"

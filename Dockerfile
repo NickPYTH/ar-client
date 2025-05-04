@@ -1,9 +1,36 @@
-FROM python:3.8
-ENV PYTHONUNBUFFERED 1
-RUN mkdir /app
+# Stage 1: Build the React app
+FROM node:18-alpine AS build
 WORKDIR /app
-COPY req.txt /app/
-RUN pip install --upgrade pip && pip install -r req.txt
-ADD . /app/
-WORKDIR /app/sklad
-CMD ["python", "manage.py", "runserver", "0.0.0.0:7777"]
+
+# Leverage caching by installing dependencies first
+COPY package.json package-lock.json ./
+RUN npm install --frozen-lockfile
+
+# Copy the rest of the application code and build for production
+COPY . ./
+RUN npm run build
+
+# Stage 2: Development environment
+FROM node:18-alpine AS development
+WORKDIR /app
+
+# Install dependencies again for development
+COPY package.json package-lock.json ./
+RUN npm install --frozen-lockfile
+
+# Copy the full source code
+COPY . ./
+
+# Expose port for the development server
+EXPOSE 3000
+CMD ["npm", "start"]
+
+# Stage 3: Production environment
+FROM nginx:alpine AS production
+
+# Copy the production build artifacts from the build stage
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expose the default NGINX port
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
