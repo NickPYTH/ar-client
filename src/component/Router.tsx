@@ -3,7 +3,7 @@ import React from "react";
 import {Navbar} from "shared/component/Navbar";
 import {Result} from "antd";
 import {routeConfig} from "./routeConfig";
-import {ArticleListPage} from "pages/ArticleListPage";
+import {CourseArticleListPage} from "pages/CourseArticleListPage";
 
 
 export const Router: React.FC = () => {
@@ -21,7 +21,7 @@ export const Router: React.FC = () => {
                 ))}
                 <Route
                     path=''
-                    element={<ArticleListPage/>}
+                    element={<CourseArticleListPage/>}
                 />
                 <Route
                     path='*'

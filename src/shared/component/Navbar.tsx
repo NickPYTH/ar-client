@@ -3,14 +3,14 @@ import React, {useEffect, useState} from "react";
 import {Menu, MenuProps, NotificationArgsProps} from "antd";
 import {useSelector} from "react-redux";
 import {RootStateType} from "store/store";
-import {Navigate, useLocation} from "react-router-dom";
+import {Navigate, useLocation, useNavigate} from "react-router-dom";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 const items: MenuItem[] = [
     {
-        label: 'Статьи',
-        key: 'main',
+        label: 'Курсы',
+        key: 'course_list',
     },
 ]
 
@@ -19,11 +19,12 @@ export const Navbar = () => {
 
     // States
     let location = useLocation();
+    let navigate = useNavigate();
     const api = useSelector((state: RootStateType) => state.currentUser.notificationContextApi);
     const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem('access'));
     const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refresh'));
     const [shouldRedirect, setShouldRedirect] = useState(false);
-    const [currentMenuItem, setCurrentMenuItem] = useState('main');
+    const [currentMenuItem, setCurrentMenuItem] = useState('course_list');
     // -----
 
     // Notifications
@@ -96,6 +97,7 @@ export const Navbar = () => {
     // Handlers
     const onClick: MenuProps['onClick'] = (e) => {
         console.log('click ', e);
+        if (e.key == 'course_list') navigate('/course_list')
         setCurrentMenuItem(e.key);
     };
     // -----

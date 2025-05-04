@@ -1,12 +1,12 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/dist/query/react";
 import {host} from "shared/config/constants"
 import {ArticleModel} from "entities/ArticleModel";
-import {ArticleItemType} from "pages/ArticlePage/ui/ArticlePage";
+import {CourseModel} from "entities/CourseModel";
 
-export const articleAPI = createApi({
-    reducerPath: 'articleAPI',
+export const courseAPI = createApi({
+    reducerPath: 'courseAPI',
     baseQuery: fetchBaseQuery({
-        baseUrl: `${host}/api/theories`,
+        baseUrl: `${host}/api/courses`,
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem('access');
             if (token)
@@ -16,25 +16,17 @@ export const articleAPI = createApi({
     }),
     tagTypes: ['user'],
     endpoints: (build) => ({
-        getAll: build.mutation<ArticleModel[], number>({
-            query: (id) => ({
-                url: `/${id}/`,
-                method: 'GET'
-            }),
-            invalidatesTags: ['user']
-        }),
-        get: build.mutation<ArticleModel, number>({
-            query: (id) => ({
-                url: `/${id}/`,
-                method: 'GET'
-            }),
-            invalidatesTags: ['user']
-        }),
-        create: build.mutation<void, ArticleModel>({
-            query: (body) => ({
+        getAll: build.mutation<CourseModel[], void>({
+            query: () => ({
                 url: `/`,
-                method: 'POST',
-                body
+                method: 'GET'
+            }),
+            invalidatesTags: ['user']
+        }),
+        get: build.mutation<CourseModel, number>({
+            query: (id) => ({
+                url: `/${id}/`,
+                method: 'GET'
             }),
             invalidatesTags: ['user']
         }),

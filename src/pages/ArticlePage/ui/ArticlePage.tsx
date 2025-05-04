@@ -1,9 +1,11 @@
 import {Button, Card, Divider, Flex, Input, Space} from "antd";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useDrag, useDrop} from 'react-dnd'
 import {TextBlock} from "pages/ArticlePage/ui/TextBlock";
 import {ArrowLeftOutlined, EditOutlined, FieldStringOutlined, PictureOutlined, SaveOutlined} from "@ant-design/icons";
 import {ImageBlock} from "pages/ArticlePage/ui/ImageBlock";
+import {articleAPI} from "service/ArticleService";
+import {useNavigate} from "react-router-dom";
 
 export type ArticleItemType = {
     order: number,
@@ -14,21 +16,74 @@ export type ArticleItemType = {
 const ArticlePage = () => {
 
     // States
+    let navigate = useNavigate();
+    const [isEditMode] = useState(() => {
+        let num = window.location.pathname.split('/')[3];
+        return !Number.isNaN(Number(num));
+    });
+    const [id] = useState<number | null>(() => {
+        let num = window.location.pathname.split('/')[3];
+        if (Number.isNaN(Number(num))) return null;
+        else return Number(num);
+    });
+    const [courseId] = useState<number | null>(() => {
+        let num = window.location.pathname.split('/')[2];
+        if (Number.isNaN(Number(num))) return null;
+        else return Number(num);
+    });
     const [articleItemsList, setArticleItemsList] = useState<ArticleItemType[]>([]);
     const [title, setTitle] = useState<string>("Заголовок статьи");
     const [editModeTitle, setEditModeTitle] = useState(false);
     // -----
 
-
     // Web requests
-
+    const [createArticle, {
+        isSuccess
+    }] = articleAPI.useCreateMutation();
+    const [getArticle, {
+        data: articleData
+    }] = articleAPI.useGetMutation();
     // -----
 
     // Effects
-
+    useEffect(() => {
+        if (id) getArticle(id);
+    }, []);
+    useEffect(() => {
+        if (articleData){
+            setTitle(articleData.title);
+            setArticleItemsList(articleData.body.split(">>>").filter((data:string) => data.length > 0).map((data:string, num:number) => {
+                const imageRE = /image_\d+/;
+                let item:ArticleItemType = {
+                    order: num+1,
+                    text: data,
+                    type: imageRE.test(data) ? "img" : "text"
+                };
+                return item;
+            }));
+        }
+    }, [articleData]);
+    useEffect(() => {
+        if (isSuccess) navigate(-1);
+    }, [isSuccess]);
     // -----
 
     // Handlers
+    const saveHandler = () => {
+        if (courseId) {
+            createArticle({
+                id,
+                title,
+                articleItemsList,
+                courseId,
+                // Нахуй не нужные свойства
+                body: "",
+                pub_date: "",
+                author: ""
+                // -----
+            })
+        }
+    }
     const addItem = (itemType:any) => {
         let item:ArticleItemType = {
             order: 1,
@@ -79,11 +134,11 @@ const ArticlePage = () => {
         <Flex justify={'center'} style={{width: window.innerWidth}}>
             <Space direction={'vertical'} style={{width: '20%', marginRight: 20}}>
                 <Flex justify={'space-between'} wrap={'wrap'}>
-                    <Button icon={<ArrowLeftOutlined />} style={{marginBottom: 5}}>
+                    <Button icon={<ArrowLeftOutlined />} style={{marginBottom: 5}} onClick={() => navigate(-1)}>
                         Назад
                     </Button>
-                    <Button icon={<SaveOutlined />}>
-                        Сохранить
+                    <Button icon={<SaveOutlined />} onClick={saveHandler}>
+                        {isEditMode ? 'Сохранить' : 'Создать'}
                     </Button>
                 </Flex>
                 <Divider style={{margin: 0, marginBottom: 5}}/>
@@ -93,7 +148,7 @@ const ArticlePage = () => {
                         Добавить блок с текстом
                     </Space>
                 </Card>
-                <Card ref={dragImg}>
+                <Card ref={dragImg} style={{cursor: 'pointer', opacity: (isDraggingText || isDraggingImg) ? 0.5 : 1,}}>
                     <Space>
                         <PictureOutlined  style={{fontSize: 24}}/>
                         Добавить блок с картинкой

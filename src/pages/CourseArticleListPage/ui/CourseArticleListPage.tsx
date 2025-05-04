@@ -2,23 +2,31 @@ import {Button, Card, Flex, Space} from "antd";
 import {articleAPI} from "service/ArticleService";
 import React, {useEffect, useState} from "react";
 import {ArticleModel} from "entities/ArticleModel";
-import {Navigate} from "react-router-dom";
+import {Navigate, useNavigate} from "react-router-dom";
+import {courseAPI} from "service/CourseService";
 
-const ArticleListPage = () => {
+const CourseArticleListPage = () => {
 
     // States
     const [shouldRedirectToCreate, setShouldRedirectToCreate] = useState(false);
+    const navigate = useNavigate();
+    const [id] = useState<number | null>(() => {
+        let num = window.location.pathname.split('/')[2];
+        if (Number.isNaN(Number(num))) return null;
+        else return Number(num);
+    });
     // -----
 
     // Web requests
-    const [getArticles, {
-        data: articles,
-    }] = articleAPI.useGetAllMutation();
+    const [getCourseArticles, {
+        data: course,
+    }] = courseAPI.useGetMutation();
     // -----
 
     // Effects
     useEffect(() => {
-        getArticles();
+        if (id)
+            getCourseArticles(id);
     }, []);
     // -----
 
@@ -26,12 +34,12 @@ const ArticleListPage = () => {
     return(
         <Flex vertical align={'center'} style={{width: window.innerWidth}}>
             <Space direction={'vertical'} align={'center'}>
-                {articles?.map((article:ArticleModel) => (
-                    <Card>
+                <h3>{course?.title}</h3>
+                {course?.theories.map((article:ArticleModel) => (
+                    <Card style={{width: 350}}>
                         <Space direction={'vertical'}>
                             <div><strong>Тема:</strong> {article.title}</div>
-                            <div><strong>Дата создания:</strong> {article.pub_date}</div>
-                            <Button>Открыть</Button>
+                            <Button onClick={() => article.id && navigate(article.id.toString())}>Открыть</Button>
                         </Space>
                     </Card>
                 ))}
@@ -41,4 +49,4 @@ const ArticleListPage = () => {
     )
 }
 
-export default ArticleListPage;
+export default CourseArticleListPage;
