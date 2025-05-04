@@ -2,7 +2,7 @@ import {RouteProps} from "react-router-dom";
 import React from "react";
 import UserPage from "pages/UserPage/ui/UserPage";
 import {LoginPage} from "pages/LoginPage";
-import {CourseArticleListPage} from "pages/CourseArticleListPage";
+import {CoursePage} from "pages/CoursePage";
 import {ArticlePage} from "pages/ArticlePage";
 import {CourseListPage} from "pages/CourseListPage";
 
@@ -36,7 +36,7 @@ export const routeConfig: Record<AppRoutes, RouteProps> = {
     },
     [AppRoutes.ARTICLE_LIST]: {
         path: RoutePath.ARTICLE_LIST,
-        element: <CourseArticleListPage/>
+        element: <CoursePage/>
     },
     [AppRoutes.ARTICLE_CREATE]: {
         path: RoutePath.ARTICLE_CREATE,

@@ -30,5 +30,13 @@ export const courseAPI = createApi({
             }),
             invalidatesTags: ['user']
         }),
+        create: build.mutation<void, CourseModel>({
+            query: (body) => ({
+                url: `/`,
+                method: 'POST',
+                body
+            }),
+            invalidatesTags: ['user']
+        }),
     })
 });
