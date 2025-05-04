@@ -8,7 +8,7 @@ RUN npm install --frozen-lockfile
 
 # Copy the rest of the application code and build for production
 COPY . ./
-RUN npm run build
+RUN npm run build:prod
 
 # Stage 2: Development environment
 FROM node:18-alpine AS development
