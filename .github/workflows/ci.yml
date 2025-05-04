@@ -26,7 +26,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key
           chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key root@83.222.9.213 << 'EOF'
-            cd /root/ar-admin-api
+            cd /root/ar-client
             git pull
             docker compose up --build -d
           EOF
