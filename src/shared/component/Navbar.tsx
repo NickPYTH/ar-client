@@ -70,12 +70,14 @@ export const Navbar = () => {
 
     // Effects
     useEffect(() => {
-        if (accessToken && refreshToken) {
-            verifyTokenRequest({token: accessToken});
-        } else {
-            localStorage.clear();
-            if (location.pathname.indexOf('login') == -1)
-                setShouldRedirect(true);
+        if (window.location.pathname.indexOf('login') == -1) {
+            if (accessToken && refreshToken) {
+                verifyTokenRequest({token: accessToken});
+            } else {
+                localStorage.clear();
+                if (location.pathname.indexOf('login') == -1)
+                    setShouldRedirect(true);
+            }
         }
     }, []);
     useEffect(() => {
