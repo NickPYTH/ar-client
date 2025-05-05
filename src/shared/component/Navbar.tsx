@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {Menu, MenuProps, NotificationArgsProps} from "antd";
 import {useSelector} from "react-redux";
 import {RootStateType} from "store/store";
-import {Navigate, useLocation, useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {LogoutOutlined} from "@ant-design/icons";
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -29,7 +29,6 @@ export const Navbar = () => {
     const api = useSelector((state: RootStateType) => state.currentUser.notificationContextApi);
     const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem('access'));
     const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refresh'));
-    const [shouldRedirect, setShouldRedirect] = useState(false);
     const [currentMenuItem, setCurrentMenuItem] = useState('course_list');
     // -----
 
@@ -75,8 +74,7 @@ export const Navbar = () => {
                 verifyTokenRequest({token: accessToken});
             } else {
                 localStorage.clear();
-                if (location.pathname.indexOf('login') == -1)
-                    setShouldRedirect(true);
+                navigate('/login');
             }
         }
     }, []);
@@ -97,7 +95,7 @@ export const Navbar = () => {
     useEffect(() => {
         if (refreshTokenIsError) {
             localStorage.clear();
-            setShouldRedirect(true);
+            navigate('/login');
         }
     }, [refreshTokenIsError])
     // -----
@@ -114,7 +112,6 @@ export const Navbar = () => {
     };
     // -----
 
-    if (shouldRedirect) return (<Navigate to="/login" />);
     if (window.location.pathname.indexOf('login') == -1) return (
         <Menu onClick={onClick} selectedKeys={[currentMenuItem]} mode="horizontal" items={items} style={{marginBottom: 20}}/>
     );

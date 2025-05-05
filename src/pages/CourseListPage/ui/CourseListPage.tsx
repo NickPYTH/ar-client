@@ -1,10 +1,10 @@
 import {Button, Card, Flex, NotificationArgsProps, Popconfirm, Space, Spin} from "antd";
-import React, {useEffect, useState} from "react";
-import {Navigate, useNavigate} from "react-router-dom";
+import React, {useEffect} from "react";
 import {courseAPI} from "service/CourseService";
 import {CourseModel} from "entities/CourseModel";
 import {RootStateType} from "store/store";
 import {useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
 
@@ -39,8 +39,7 @@ const CourseListPage = () => {
     // -----
 
     // States
-    const [shouldRedirectToCreate, setShouldRedirectToCreate] = useState(false);
-    const navigate = useNavigate();
+    let navigate = useNavigate();
     // -----
 
     // Web requests
@@ -84,7 +83,6 @@ const CourseListPage = () => {
     };
     // -----
 
-    if (shouldRedirectToCreate) return (<Navigate to="create" />);
     return(
         <Flex vertical align={'center'} style={{width: window.innerWidth}}>
             <Space direction={'vertical'} align={'center'}>

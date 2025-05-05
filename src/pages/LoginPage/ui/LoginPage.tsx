@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {GetTokenResponseType, userAPI} from "service/UserService";
 import {useSelector} from "react-redux";
 import {RootStateType} from "store/store";
-import {Navigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
 
@@ -16,8 +16,8 @@ const LoginPage = () => {
     // States
     const [username, setUsername] = useState<string | null>(null);
     const [password, setPassword] = useState<string | null>(null);
-    const [shouldRedirect, setShouldRedirect] = useState(false);
     const [accessToken] = useState<string | null>(localStorage.getItem('access'));
+    const navigate = useNavigate();
     // -----
 
     // Notifications
@@ -72,7 +72,7 @@ const LoginPage = () => {
     }, []);
     useEffect(() => {
         if (verifyTokenIsSuccess) {
-            setShouldRedirect(true);
+            navigate('/course_list');
         }
     }, [verifyTokenIsSuccess]);
     useEffect(() => {
@@ -83,7 +83,7 @@ const LoginPage = () => {
                     showSuccessNotification('topRight', response.access ?? "");
                     localStorage.setItem('access', response.access);
                     localStorage.setItem('refresh', response.refresh);
-                    setShouldRedirect(true);
+                    setTimeout(() => navigate('/course_list'), 300);
                 }
             }
         }
@@ -97,7 +97,6 @@ const LoginPage = () => {
     }, [getTokensError]);
     // -----
 
-    if (shouldRedirect) return (<Navigate to="/course_list" />);
     return(
         <Flex justify={'center'} align={'center'} style={{height: window.innerHeight}}>
             <Space direction={'vertical'} align={'center'}>
