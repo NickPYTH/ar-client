@@ -30,11 +30,18 @@ export const courseAPI = createApi({
             }),
             invalidatesTags: ['user']
         }),
-        create: build.mutation<void, CourseModel>({
+        create: build.mutation<CourseModel, CourseModel>({
             query: (body) => ({
                 url: `/`,
                 method: 'POST',
                 body
+            }),
+            invalidatesTags: ['user']
+        }),
+        delete: build.mutation<void, number>({
+            query: (id) => ({
+                url: `/${id}/`,
+                method: 'DELETE',
             }),
             invalidatesTags: ['user']
         }),

@@ -1,12 +1,13 @@
-import {Button, Card, Flex, Input, NotificationArgsProps, Space} from "antd";
+import {Button, Card, Flex, Input, NotificationArgsProps, Popconfirm, Space} from "antd";
 import React, {useEffect, useState} from "react";
 import {ArticleModel} from "entities/ArticleModel";
 import {Navigate, useNavigate} from "react-router-dom";
 import {courseAPI} from "service/CourseService";
-import {EditOutlined, SaveOutlined} from "@ant-design/icons";
+import {ArrowLeftOutlined, EditOutlined, SaveOutlined} from "@ant-design/icons";
 import {CourseModel} from "entities/CourseModel";
 import {useSelector} from "react-redux";
 import {RootStateType} from "store/store";
+import {articleAPI} from "service/ArticleService";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
 
@@ -59,6 +60,9 @@ const CoursePage = () => {
     const [updateCourse, {
         isSuccess: isSuccessUpdateCourse
     }] = courseAPI.useCreateMutation();
+    const [deleteArticle, {
+        isSuccess: isDeleteArticleSuccess
+    }] = articleAPI.useDeleteMutation();
     // -----
 
     // Effects
@@ -76,6 +80,12 @@ const CoursePage = () => {
             setTitle(course.title)
         }
     }, [course]);
+    useEffect(() => {
+        if (isDeleteArticleSuccess && id){
+            showSuccessNotification('topRight', 'Статья удалена.')
+            getCourseArticles(id);
+        }
+    }, [isDeleteArticleSuccess])
     // -----
 
     // Handlers
@@ -85,6 +95,9 @@ const CoursePage = () => {
             let course: CourseModel = {description: "", id, theories: [], title}
             updateCourse(course);
         }
+    };
+    const deleteArticleHandler = (id: number) => {
+        deleteArticle(id);
     }
     // -----
 
@@ -92,16 +105,25 @@ const CoursePage = () => {
     return(
         <Flex vertical align={'center'} style={{width: window.innerWidth}}>
             <Space direction={'vertical'} align={'center'}>
-                <Flex align={'center'}>
+                <Flex align={'center'} justify={'center'}>
+                    <Button icon={<ArrowLeftOutlined />} style={{marginRight: 15}} onClick={() => navigate(-1)}>
+                        Назад
+                    </Button>
                     {editModeTitle && <Input style={{width: 400}} value={title} onChange={(e) => setTitle(e.target.value)}/>}
                     {!editModeTitle &&  <h3>{title}</h3>}
                     <Button onClick={saveTitleHandler} style={{marginLeft: 5}} size={'small'} variant={'outlined'} color={'primary'} icon={editModeTitle ? <SaveOutlined /> : <EditOutlined />}/>
                 </Flex>
                 {course?.theories.map((article:ArticleModel) => (
                     <Card style={{width: 350}}>
-                        <Space direction={'vertical'}>
+                        <Space direction={'vertical'} style={{width: '100%'}}>
                             <div><strong>Тема:</strong> {article.title}</div>
-                            <Button onClick={() => article.id && navigate(article.id.toString())}>Открыть</Button>
+                            <Flex justify={'end'}>
+                                <Button onClick={() => article.id && navigate(article.id.toString())}>Открыть</Button>
+                                <Popconfirm title={"Вы точно хотите удалить статью? Это действие необратимо."}
+                                            onConfirm={()=>article.id && deleteArticleHandler(article.id)}>
+                                    <Button style={{marginLeft: 5}} danger>Удалить</Button>
+                                </Popconfirm>
+                            </Flex>
                         </Space>
                     </Card>
                 ))}

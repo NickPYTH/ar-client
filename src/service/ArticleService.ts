@@ -38,5 +38,12 @@ export const articleAPI = createApi({
             }),
             invalidatesTags: ['user']
         }),
+        delete: build.mutation<void, number>({
+            query: (id) => ({
+                url: `/${id}/`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['user']
+        }),
     })
 });
