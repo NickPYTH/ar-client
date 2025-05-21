@@ -1,8 +1,15 @@
-import {Button, Card, Divider, Flex, Input, Space} from "antd";
+import {Button, Card, Divider, Empty, Flex, Input, Popover, Space, Spin} from "antd";
 import React, {useEffect, useState} from "react";
 import {useDrag, useDrop} from 'react-dnd'
 import {TextBlock} from "pages/ArticlePage/ui/TextBlock";
-import {ArrowLeftOutlined, EditOutlined, FieldStringOutlined, PictureOutlined, SaveOutlined} from "@ant-design/icons";
+import {
+    ArrowLeftOutlined,
+    ArrowRightOutlined,
+    EditOutlined,
+    FieldStringOutlined,
+    PictureOutlined,
+    SaveOutlined
+} from "@ant-design/icons";
 import {ImageBlock} from "pages/ArticlePage/ui/ImageBlock";
 import {articleAPI} from "service/ArticleService";
 import {useNavigate} from "react-router-dom";
@@ -41,7 +48,8 @@ const ArticlePage = () => {
         isSuccess
     }] = articleAPI.useCreateMutation();
     const [getArticle, {
-        data: articleData
+        data: articleData,
+        isLoading: isArticleLoading
     }] = articleAPI.useGetMutation();
     // -----
 
@@ -130,6 +138,9 @@ const ArticlePage = () => {
     )
     // -----
 
+    if (isArticleLoading) return (<Flex vertical align={'center'} style={{width: window.innerWidth}}>
+        <Spin size='large' style={{margin: 50}} />
+    </Flex>)
     return(
         <Flex justify={'center'} style={{width: window.innerWidth}}>
             <Space direction={'vertical'} style={{width: '20%', marginRight: 20}}>
@@ -143,16 +154,22 @@ const ArticlePage = () => {
                 </Flex>
                 <Divider style={{margin: 0, marginBottom: 5}}/>
                 <Card ref={dragText} style={{cursor: 'pointer', opacity: (isDraggingText || isDraggingImg) ? 0.5 : 1,}}>
-                    <Space>
+                    <Flex justify='space-between' align='center'>
                         <FieldStringOutlined  style={{fontSize: 24}}/>
-                        Добавить блок с текстом
-                    </Space>
+                        Блок с текстом
+                        <Popover content={() => <div style={{fontWeight: 200}}>Добавить блок с текстом</div>}>
+                            <Button onClick={() => addItem('text')} icon={<ArrowRightOutlined/>}/>
+                        </Popover>
+                    </Flex>
                 </Card>
                 <Card ref={dragImg} style={{cursor: 'pointer', opacity: (isDraggingText || isDraggingImg) ? 0.5 : 1,}}>
-                    <Space>
+                    <Flex justify='space-between' align='center'>
                         <PictureOutlined  style={{fontSize: 24}}/>
-                        Добавить блок с картинкой
-                    </Space>
+                        Блок с картинкой
+                        <Popover content={() => <div style={{fontWeight: 200}}>Добавить блок с картинкой</div>}>
+                            <Button onClick={() => addItem('img')} icon={<ArrowRightOutlined/>}/>
+                        </Popover>
+                    </Flex>
                 </Card>
             </Space>
             <Card ref={drop} style={{height: '90%', width: '60%', backgroundColor: isOver ? '#eee' : '#f7f7f7',}}>
@@ -162,10 +179,11 @@ const ArticlePage = () => {
                         {!editModeTitle &&  <h3>{title}</h3>}
                         <Button onClick={() => setEditModeTitle(prev => !prev)} style={{marginLeft: 5}} size={'small'} variant={'outlined'} color={'primary'} icon={editModeTitle ? <SaveOutlined /> : <EditOutlined />}/>
                     </Flex>
+                    {articleItemsList.length == 0 && <Empty/>}
                     {articleItemsList.sort((item1: ArticleItemType, item2: ArticleItemType) => item1.order - item2.order).map((item:any) => item.type == 'text' ?
-                        <TextBlock item={item} setList={setArticleItemsList}/>
+                        <TextBlock list={articleItemsList} item={item} setList={setArticleItemsList}/>
                     :
-                        <ImageBlock item={item} setList={setArticleItemsList}/>
+                        <ImageBlock list={articleItemsList} item={item} setList={setArticleItemsList}/>
                     )}
                 </Space>
             </Card>

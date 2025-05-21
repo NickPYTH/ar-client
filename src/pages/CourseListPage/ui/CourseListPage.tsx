@@ -1,10 +1,11 @@
-import {Button, Card, Flex, NotificationArgsProps, Popconfirm, Space, Spin} from "antd";
+import {Button, Card, Empty, Flex, FloatButton, NotificationArgsProps, Popconfirm, Space, Spin} from "antd";
 import React, {useEffect} from "react";
 import {courseAPI} from "service/CourseService";
 import {CourseModel} from "entities/CourseModel";
 import {RootStateType} from "store/store";
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
+import {PlusCircleOutlined} from "@ant-design/icons";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
 
@@ -87,6 +88,7 @@ const CourseListPage = () => {
         <Flex vertical align={'center'} style={{width: window.innerWidth}}>
             <Space direction={'vertical'} align={'center'}>
                 {isCoursesLoading && <Spin size={'large'} style={{margin: 50}}/>}
+                {(courses?.length == 0 && !isCoursesLoading) && <Empty style={{margin: 15}}/>}
                 {courses?.map((course:CourseModel) => (
                     <Card style={{width: 350}}>
                         <Space direction={'vertical'} style={{width: '100%'}}>
@@ -101,7 +103,7 @@ const CourseListPage = () => {
                         </Space>
                     </Card>
                 ))}
-                <Button type={'primary'} onClick={createCourseHandler}>Добавить курс</Button>
+                <FloatButton type="primary" icon={<PlusCircleOutlined />} onClick={createCourseHandler}/>
             </Space>
         </Flex>
     )

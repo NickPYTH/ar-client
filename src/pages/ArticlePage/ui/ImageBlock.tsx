@@ -1,13 +1,19 @@
-import {Button, Card, Flex, GetProp, Tag, Upload, UploadProps, Image} from "antd";
+import {Button, Card, Flex, GetProp, Image, Popconfirm, Popover, Space, Tag, Upload, UploadProps} from "antd";
 import React, {useEffect, useState} from "react";
 import {ArticleItemType} from "pages/ArticlePage/ui/ArticlePage";
-import {LoadingOutlined, PlusOutlined} from "@ant-design/icons";
+import {ArrowDownOutlined, ArrowUpOutlined, LoadingOutlined, PlusOutlined} from "@ant-design/icons";
 import {host} from "shared/config/constants";
 
 type ImageBlockProps = {
+    list: ArticleItemType[],
     setList: Function,
     item: ArticleItemType
 };
+
+enum PositionType {
+    UP,
+    DOWN
+}
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
@@ -20,8 +26,15 @@ const getBase64 = (img: FileType, callback: (url: string) => void) => {
 export const ImageBlock = (props:ImageBlockProps) => {
 
     // States
+    const [order, setOrder] = useState(props.item.order);
     const [loading, setLoading] = useState(false);
     const [imageBase64, setImageBase64] = useState<string>();
+    // -----
+
+    // Effects
+    useEffect(() => {
+        setOrder(props.item.order);
+    }, [props.item]);
     // -----
 
     // Handlers
@@ -39,6 +52,17 @@ export const ImageBlock = (props:ImageBlockProps) => {
             props.setList((prev: ArticleItemType[]) => prev.map((i:ArticleItemType) => i.order == props.item.order ? {...i, text: imageBase64} : i))
         });
     };
+    const changePositionHandler = (position:PositionType) => {
+        props.setList((prev:ArticleItemType[]) => {
+            let prevItem: ArticleItemType | undefined = prev.find((item:ArticleItemType) => item.order == (position == PositionType.UP ? props.item.order-1 : props.item.order+1));
+            let currentItem: ArticleItemType | undefined = prev.find((item:ArticleItemType) => item.order == props.item.order);
+            if (prevItem && currentItem) {
+                prevItem.order = props.item.order;
+                currentItem.order = position == PositionType.UP ? props.item.order - 1 : props.item.order + 1;
+            }
+            return JSON.parse(JSON.stringify(prev));
+        });
+    };
     // -----
 
     // Useful utils
@@ -54,7 +78,7 @@ export const ImageBlock = (props:ImageBlockProps) => {
         <Card style={{width: '100%'}}>
             <Flex style={{width: '100%'}} justify={'space-evenly'}>
                 <Flex style={{width: '83%'}} vertical>
-                    <Tag color={'processing'} style={{width: 70, marginBottom: 5}}>Номер: {props.item.order}</Tag>
+                    <Tag color={'processing'} style={{width: 70, marginBottom: 5}}>Номер: {order}</Tag>
                     <Flex align={'center'} justify={'space-evenly'}>
                         <Image
                             width={200}
@@ -72,9 +96,21 @@ export const ImageBlock = (props:ImageBlockProps) => {
                         </Upload>
                     </Flex>
                 </Flex>
-                <Flex vertical style={{width: '15%'}}>
-                    <Button danger onClick={removeItemHandler}>Удалить</Button>
-                </Flex>
+                <Space direction='vertical' align='end' style={{width: '30%'}}>
+                    <Space>
+                        <Popover content={() => <div style={{fontWeight: 200}}>Поднять</div>}>
+                            <Button onClick={() => changePositionHandler(PositionType.UP)} disabled={props.item.order == 1} icon={<ArrowUpOutlined />}/>
+                        </Popover>
+                    </Space>
+                    <Space>
+                        <Popconfirm onConfirm={removeItemHandler} title={"Вы точно хотите удалить?"}>
+                            <Button style={{width: 135}} danger>Удалить</Button>
+                        </Popconfirm>
+                        <Popover placement='right' content={() => <div style={{fontWeight: 200}}>Опустить</div>}>
+                            <Button onClick={() => changePositionHandler(PositionType.DOWN)} disabled={props.item.order == props.list.length} icon={<ArrowDownOutlined />}/>
+                        </Popover>
+                    </Space>
+                </Space>
             </Flex>
         </Card>
     )

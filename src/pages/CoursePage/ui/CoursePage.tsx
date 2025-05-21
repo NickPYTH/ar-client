@@ -1,9 +1,21 @@
-import {Button, Card, Flex, Input, NotificationArgsProps, Popconfirm, Space} from "antd";
+import {
+    Button,
+    Card,
+    Empty,
+    Flex,
+    FloatButton,
+    Input,
+    NotificationArgsProps,
+    Popconfirm,
+    Skeleton,
+    Space,
+    Spin
+} from "antd";
 import React, {useEffect, useState} from "react";
 import {ArticleModel} from "entities/ArticleModel";
 import {Navigate, useNavigate} from "react-router-dom";
 import {courseAPI} from "service/CourseService";
-import {ArrowLeftOutlined, EditOutlined, SaveOutlined} from "@ant-design/icons";
+import {ArrowLeftOutlined, EditOutlined, PlusCircleOutlined, SaveOutlined} from "@ant-design/icons";
 import {CourseModel} from "entities/CourseModel";
 import {useSelector} from "react-redux";
 import {RootStateType} from "store/store";
@@ -56,6 +68,7 @@ const CoursePage = () => {
     // Web requests
     const [getCourseArticles, {
         data: course,
+        isLoading: isCourseLoading,
     }] = courseAPI.useGetMutation();
     const [updateCourse, {
         isSuccess: isSuccessUpdateCourse
@@ -102,6 +115,9 @@ const CoursePage = () => {
     // -----
 
     if (shouldRedirectToCreate) return (<Navigate to="create" />);
+    if (isCourseLoading) return (<Flex vertical align={'center'} style={{width: window.innerWidth}}>
+                                    <Spin size='large' style={{margin: 50}} />
+                                </Flex>)
     return(
         <Flex vertical align={'center'} style={{width: window.innerWidth}}>
             <Space direction={'vertical'} align={'center'}>
@@ -113,6 +129,7 @@ const CoursePage = () => {
                     {!editModeTitle &&  <h3>{title}</h3>}
                     <Button onClick={saveTitleHandler} style={{marginLeft: 5}} size={'small'} variant={'outlined'} color={'primary'} icon={editModeTitle ? <SaveOutlined /> : <EditOutlined />}/>
                 </Flex>
+                {(course?.theories?.length == 0 && !isCourseLoading) && <Empty style={{margin: 15}}/>}
                 {course?.theories.map((article:ArticleModel) => (
                     <Card style={{width: 350}}>
                         <Space direction={'vertical'} style={{width: '100%'}}>
@@ -127,7 +144,7 @@ const CoursePage = () => {
                         </Space>
                     </Card>
                 ))}
-                <Button type={'primary'} onClick={() => setShouldRedirectToCreate(true)}>Добавить статью</Button>
+                <FloatButton type="primary" icon={<PlusCircleOutlined />} onClick={() => setShouldRedirectToCreate(true)}/>
             </Space>
         </Flex>
     )
