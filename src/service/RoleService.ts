@@ -1,45 +1,43 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/dist/query/react";
-import {ContractModel} from "entities/ContractModel";
-import {OrganizationModel} from "entities/OrganizationModel";
 import {host} from "shared/config/constants";
+import {UserModel} from "entities/UserModel";
 
-//${host}
-export const organizationAPI = createApi({
-    reducerPath: 'organizationAPI',
+export const userAPI = createApi({
+    reducerPath: 'userAPI',
     baseQuery: fetchBaseQuery({
-        baseUrl: `${host}/hotels/api/organization`,
+        baseUrl: `${host}/api/user`,
     }),
-    tagTypes: ['organization'],
+    tagTypes: ['user'],
     endpoints: (build) => ({
-        getAll: build.mutation<OrganizationModel[], void>({
+        getAll: build.mutation<UserModel[], void>({
             query: () => ({
                 url: `/getAll`,
                 method: 'GET',
             }),
-            invalidatesTags: ['organization']
+            invalidatesTags: ['user']
         }),
-        get: build.mutation<OrganizationModel, number>({
+        get: build.mutation<UserModel, number>({
             query: (id) => ({
                 url: `/get?id=${id}`,
                 method: 'GET',
             }),
-            invalidatesTags: ['organization']
+            invalidatesTags: ['user']
         }),
-        update: build.mutation<OrganizationModel, OrganizationModel>({
+        update: build.mutation<UserModel, UserModel>({
             query: (body) => ({
                 url: `/update`,
                 method: 'POST',
                 body
             }),
-            invalidatesTags: ['organization']
+            invalidatesTags: ['user']
         }),
-        create: build.mutation<OrganizationModel, OrganizationModel>({
+        create: build.mutation<UserModel, UserModel>({
             query: (body) => ({
                 url: `/create`,
                 method: 'POST',
                 body
             }),
-            invalidatesTags: ['organization']
+            invalidatesTags: ['user']
         }),
     })
 });
