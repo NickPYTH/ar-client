@@ -3,6 +3,7 @@ import {userAPI} from "service/UserService";
 import userSlice, {CurrentUserModelStateType} from "./slice/UserSlice";
 import {articleAPI} from "service/ArticleService";
 import {courseAPI} from "service/CourseService";
+import {calculatedTestsAPI} from "service/CalculatedTestsService";
 
 export type RootStateType = {
     currentUser: CurrentUserModelStateType
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
     [userAPI.reducerPath]: userAPI.reducer,
     [articleAPI.reducerPath]: articleAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
+    [calculatedTestsAPI.reducerPath]: calculatedTestsAPI.reducer,
 })
 
 export const setupStore = () => {
@@ -23,6 +25,7 @@ export const setupStore = () => {
                 .concat(userAPI.middleware)
                 .concat(articleAPI.middleware)
                 .concat(courseAPI.middleware)
+                .concat(calculatedTestsAPI.middleware)
     })
 }
 

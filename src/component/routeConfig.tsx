@@ -5,12 +5,14 @@ import {LoginPage} from "pages/LoginPage";
 import {CoursePage} from "pages/CoursePage";
 import {ArticlePage} from "pages/ArticlePage";
 import {CourseListPage} from "pages/CourseListPage";
+import {ReportPage} from "pages/ReportPage";
 
 export enum AppRoutes {
     COURSE_LIST = 'COURSE_LIST',
     ARTICLE_LIST = 'ARTICLE_LIST',
     ARTICLE_CREATE = 'ARTICLE_CREATE',
     ARTICLE_UPDATE = 'ARTICLE_UPDATE',
+    REPORT = 'REPORT',
     USER = 'USER',
     LOGIN = 'LOGIN',
 }
@@ -21,6 +23,7 @@ export const RoutePath: Record<AppRoutes, string> = {
     [AppRoutes.ARTICLE_LIST]: '/course_list/:id',
     [AppRoutes.ARTICLE_UPDATE]: '/course_list/:id/:id',
     [AppRoutes.ARTICLE_CREATE]: '/article_list/create',
+    [AppRoutes.REPORT]: '/report',
     [AppRoutes.USER]: '/user',
     [AppRoutes.LOGIN]: '/login',
 }
@@ -49,5 +52,9 @@ export const routeConfig: Record<AppRoutes, RouteProps> = {
     [AppRoutes.LOGIN]: {
         path: RoutePath.LOGIN,
         element: <LoginPage/>
+    },
+    [AppRoutes.REPORT]: {
+        path: RoutePath.REPORT,
+        element: <ReportPage/>
     },
 }

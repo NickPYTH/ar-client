@@ -14,6 +14,10 @@ const items: MenuItem[] = [
         key: 'course_list',
     },
     {
+        label: 'Отчеты',
+        key: 'report',
+    },
+    {
         label: 'Выйти',
         key: 'logout',
         icon: <LogoutOutlined />,
@@ -104,6 +108,7 @@ export const Navbar = () => {
     const onClick: MenuProps['onClick'] = (e) => {
         console.log('click ', e);
         if (e.key == 'course_list') navigate('/course_list')
+        if (e.key == 'report') navigate('/report')
         if (e.key == 'logout') {
             localStorage.clear();
             navigate('/login');
