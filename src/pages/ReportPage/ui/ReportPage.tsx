@@ -225,26 +225,6 @@ export const ReportPage = () => {
 
     return (
         <Flex vertical={true} gap={'small'} style={{margin: "0 5px 0 5px"}}>
-            <Title level={3}>Общий отчет по всем пользователям</Title>
-            <Table
-                bordered
-                style={{width: '100vw'}}
-                columns={columns}
-                dataSource={data}
-                loading={isDataLoading}
-                pagination={{
-                    defaultPageSize: 10,
-                }}
-                onRow={(record, rowIndex) => {
-                    return {
-                        onDoubleClick: (e) => {
-                            setIsVisibleModal(true);
-                            setSelected(record);
-                        },
-                    };
-                }}
-            />
-            <Divider/>
             <Title level={3}>Отчет по выбранному экзамену</Title>
             <Flex align={"center"}>
                 <div style={{width: 200}}>Выберите экзамен</div>
@@ -285,6 +265,26 @@ export const ReportPage = () => {
                 :
                 <Empty description={"Вы не выбрали ни одного экзамена"}/>
             }
+            <Divider />
+            <Title level={3}>Общий отчет по всем пользователям</Title>
+            <Table
+                bordered
+                style={{width: '100vw'}}
+                columns={columns}
+                dataSource={data}
+                loading={isDataLoading}
+                pagination={{
+                    defaultPageSize: 10,
+                }}
+                onRow={(record, rowIndex) => {
+                    return {
+                        onDoubleClick: (e) => {
+                            setIsVisibleModal(true);
+                            setSelected(record);
+                        },
+                    };
+                }}
+            />
         </Flex>
     );
 }
