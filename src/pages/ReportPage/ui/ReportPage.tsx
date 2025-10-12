@@ -1,10 +1,15 @@
-import {Flex, Table, TableProps} from "antd";
+import {Divider, Empty, Flex, Select, Table, TableProps, Typography} from "antd";
 import {useSelector} from "react-redux";
 import {RootStateType} from "store/store";
 import {NotificationPlacement} from "antd/es/notification/interface";
 import {calculatedTestsAPI} from "service/CalculatedTestsService";
 import React, {useEffect, useState} from "react";
 import {CalculatedTestModel} from "entities/CalculatedTestModel";
+import {TestModel} from "entities/TestModel";
+import {GroupModel} from "entities/GroupModel";
+import {TestReport} from "pages/ReportPage/ui/TestReport";
+
+const {Title} = Typography;
 
 export const ReportPage = () => {
 
@@ -15,6 +20,8 @@ export const ReportPage = () => {
     // States
     const [isVisibleModal, setIsVisibleModal] = useState(false);
     const [selected, setSelected] = useState<CalculatedTestModel | null>(null);
+    const [selectedTestId, setSelectedTestId] = useState<number | null>(null);
+    const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
     // -----
 
     // Web requests
@@ -62,7 +69,12 @@ export const ReportPage = () => {
     // -----
 
     // Handlers
-
+    const selectTestIdHandler = (id: number) => {
+        setSelectedTestId(id);
+    };
+    const selectGroupIdHandler = (id: number) => {
+        setSelectedGroupId(id);
+    };
     // -----
 
     // Useful utils
@@ -78,8 +90,11 @@ export const ReportPage = () => {
         {
             title: 'Группа',
             dataIndex: 'user',
-            key: 'user',
-            filters: data?.reduce((acc: { text: string, value: string }[], calculatedTestModel: CalculatedTestModel) => {
+            key: 'group',
+            filters: data?.reduce((acc: {
+                text: string,
+                value: string
+            }[], calculatedTestModel: CalculatedTestModel) => {
                 if (calculatedTestModel.user.groups.length > 0) {
                     let group = calculatedTestModel.user.groups[0];
                     if (acc.find((g: {
@@ -108,16 +123,19 @@ export const ReportPage = () => {
             title: 'Пользователь',
             dataIndex: 'user',
             key: 'user',
-            filters: data?.reduce((acc: { text: string, value: string }[], calculatedTestModel: CalculatedTestModel) => {
-                    if (acc.find((g: {
-                        text: string,
-                        value: string
-                    }) => g.text === calculatedTestModel.user.username) === undefined)
-                        return acc.concat({
-                            text: calculatedTestModel.user.username,
-                            value: calculatedTestModel.user.username
-                        });
-                    return acc;
+            filters: data?.reduce((acc: {
+                text: string,
+                value: string
+            }[], calculatedTestModel: CalculatedTestModel) => {
+                if (acc.find((g: {
+                    text: string,
+                    value: string
+                }) => g.text === calculatedTestModel.user.username) === undefined)
+                    return acc.concat({
+                        text: calculatedTestModel.user.username,
+                        value: calculatedTestModel.user.username
+                    });
+                return acc;
             }, []),
             filterSearch: true,
             onFilter: (value: any, calculatedTestModel: CalculatedTestModel) => {
@@ -129,8 +147,14 @@ export const ReportPage = () => {
             title: 'Экзамен',
             dataIndex: 'title',
             key: 'title',
-            filters: data?.reduce((acc: { text: string, value: string }[], calculatedTestModel: CalculatedTestModel) => {
-                if (acc.find((g: { text: string, value: string }) => g.text === calculatedTestModel.test.title) === undefined)
+            filters: data?.reduce((acc: {
+                text: string,
+                value: string
+            }[], calculatedTestModel: CalculatedTestModel) => {
+                if (acc.find((g: {
+                    text: string,
+                    value: string
+                }) => g.text === calculatedTestModel.test.title) === undefined)
                     return acc.concat({text: calculatedTestModel.test.title, value: calculatedTestModel.test.title});
                 return acc;
             }, []),
@@ -144,9 +168,18 @@ export const ReportPage = () => {
             title: 'Описание',
             dataIndex: 'description',
             key: 'description',
-            filters: data?.reduce((acc: { text: string, value: string }[], calculatedTestModel: CalculatedTestModel) => {
-                if (acc.find((g: { text: string, value: string }) => g.text === calculatedTestModel.test.description) === undefined)
-                    return acc.concat({text: calculatedTestModel.test.description, value: calculatedTestModel.test.description});
+            filters: data?.reduce((acc: {
+                text: string,
+                value: string
+            }[], calculatedTestModel: CalculatedTestModel) => {
+                if (acc.find((g: {
+                    text: string,
+                    value: string
+                }) => g.text === calculatedTestModel.test.description) === undefined)
+                    return acc.concat({
+                        text: calculatedTestModel.test.description,
+                        value: calculatedTestModel.test.description
+                    });
                 return acc;
             }, []),
             filterSearch: true,
@@ -169,17 +202,30 @@ export const ReportPage = () => {
             key: 'goodAnswersCount',
             render: (_, record) => {
                 let goodAnswersCount = record.test_user_question_answer_list.reduce((acc: number, result) => {
-                    if (result.answer.isCorrect) return acc+1;
+                    if (result.answer.isCorrect) return acc + 1;
                     return acc;
                 }, 0);
                 return (<div>{goodAnswersCount}</div>);
             },
         },
+        {
+            title: 'Результат',
+            dataIndex: 'test_user_question_answer_list',
+            key: 'mark',
+            render: (_, record) => {
+                let goodAnswersCount = record.test_user_question_answer_list.reduce((acc: number, result) => {
+                    if (result.answer.isCorrect) return acc + 1;
+                    return acc;
+                }, 0);
+                return (<div>{(goodAnswersCount / record.test.questions.length * 100)}%</div>);
+            },
+        },
     ];
     // -----
 
-    return(
+    return (
         <Flex vertical={true} gap={'small'} style={{margin: "0 5px 0 5px"}}>
+            <Title level={3}>Общий отчет по всем пользователям</Title>
             <Table
                 bordered
                 style={{width: '100vw'}}
@@ -187,7 +233,7 @@ export const ReportPage = () => {
                 dataSource={data}
                 loading={isDataLoading}
                 pagination={{
-                    defaultPageSize: 100,
+                    defaultPageSize: 10,
                 }}
                 onRow={(record, rowIndex) => {
                     return {
@@ -198,6 +244,47 @@ export const ReportPage = () => {
                     };
                 }}
             />
+            <Divider/>
+            <Title level={3}>Отчет по выбранному экзамену</Title>
+            <Flex align={"center"}>
+                <div style={{width: 200}}>Выберите экзамен</div>
+                <Select
+                    loading={isDataLoading}
+                    value={selectedTestId}
+                    placeholder={"Выберите экзамен"}
+                    style={{width: 200}}
+                    onChange={selectTestIdHandler}
+                    options={data?.reduce((acc: TestModel[], record) => {
+                        if (!acc.find((r) => r.id === record.test.id)) {
+                            return acc.concat([record.test]);
+                        }
+                        return acc;
+                    }, []).map((test: TestModel) => ({value: test.id, label: test.title}))}
+                />
+            </Flex>
+            <Flex align={"center"}>
+                <div style={{width: 200}}>Выберите группу</div>
+                <Select
+                    loading={isDataLoading}
+                    value={selectedGroupId}
+                    placeholder={"Выберите группу"}
+                    style={{width: 200}}
+                    onChange={selectGroupIdHandler}
+                    options={data?.reduce((acc: GroupModel[], record) => {
+                        if (record.user.groups.length > 0) {
+                            if (!acc.find((r) => r.id === record.user.groups[0]?.id)) {
+                                return acc.concat([record.user.groups[0]]);
+                            }
+                        }
+                        return acc;
+                    }, []).map((test: GroupModel) => ({value: test.id, label: test.name}))}
+                />
+            </Flex>
+            {(selectedGroupId && selectedTestId && data) ?
+                <TestReport data={data} selectedGroupId={selectedGroupId} selectedTestId={selectedTestId}/>
+                :
+                <Empty description={"Вы не выбрали ни одного экзамена"}/>
+            }
         </Flex>
     );
 }
