@@ -92,11 +92,11 @@ const ArticlePage = () => {
             })
         }
     }
-    const addItem = (itemType:any) => {
+    const addItem = (itemType:string) => {
         let item:ArticleItemType = {
             order: 1,
             type: itemType,
-            text: 'Тут пока пусто...'
+            text: itemType=='img' ? '' : 'Тут пока пусто...'
         }
         setArticleItemsList(prev => {
             if (prev.length > 0) {
@@ -143,18 +143,18 @@ const ArticlePage = () => {
     </Flex>)
     return(
         <Flex justify={'center'} style={{width: window.innerWidth}}>
-            <Space direction={'vertical'} style={{width: '20%', marginRight: 20}}>
-                <Flex justify={'space-between'} wrap={'wrap'}>
-                    <Button icon={<ArrowLeftOutlined />} style={{marginBottom: 5}} onClick={() => navigate(-1)}>
+            <Flex vertical style={{marginRight: 20}} gap={'small'}>
+                <Flex justify={'space-between'} wrap={'wrap'} gap={'small'}>
+                    <Button icon={<ArrowLeftOutlined />}onClick={() => navigate(-1)}>
                         Назад
                     </Button>
                     <Button icon={<SaveOutlined />} onClick={saveHandler}>
                         {isEditMode ? 'Сохранить' : 'Создать'}
                     </Button>
                 </Flex>
-                <Divider style={{margin: 0, marginBottom: 5}}/>
+                <Divider />
                 <Card ref={dragText} style={{cursor: 'pointer', opacity: (isDraggingText || isDraggingImg) ? 0.5 : 1,}}>
-                    <Flex justify='space-between' align='center'>
+                    <Flex justify='space-between' align='center' gap={'small'}>
                         <FieldStringOutlined  style={{fontSize: 24}}/>
                         Блок с текстом
                         <Popover content={() => <div style={{fontWeight: 200}}>Добавить блок с текстом</div>}>
@@ -163,7 +163,7 @@ const ArticlePage = () => {
                     </Flex>
                 </Card>
                 <Card ref={dragImg} style={{cursor: 'pointer', opacity: (isDraggingText || isDraggingImg) ? 0.5 : 1,}}>
-                    <Flex justify='space-between' align='center'>
+                    <Flex justify='space-between' align='center' gap={'small'}>
                         <PictureOutlined  style={{fontSize: 24}}/>
                         Блок с картинкой
                         <Popover content={() => <div style={{fontWeight: 200}}>Добавить блок с картинкой</div>}>
@@ -171,7 +171,7 @@ const ArticlePage = () => {
                         </Popover>
                     </Flex>
                 </Card>
-            </Space>
+            </Flex>
             <Card ref={drop} style={{height: '90%', width: '60%', backgroundColor: isOver ? '#eee' : '#f7f7f7',}}>
                 <Space direction={"vertical"} style={{width: '100%'}}>
                     <Flex align={'center'}>

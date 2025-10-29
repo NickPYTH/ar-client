@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {ArticleItemType} from "pages/ArticlePage/ui/ArticlePage";
 import {ArrowDownOutlined, ArrowUpOutlined, LoadingOutlined, PlusOutlined} from "@ant-design/icons";
 import {host} from "shared/config/constants";
+import imageCompression from "browser-image-compression";
 
 type ImageBlockProps = {
     list: ArticleItemType[],
@@ -17,7 +18,7 @@ enum PositionType {
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-const getBase64 = (img: FileType, callback: (url: string) => void) => {
+const getBase64 = (img: File, callback: (url: string) => void) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result as string));
     reader.readAsDataURL(img);
@@ -45,12 +46,43 @@ export const ImageBlock = (props:ImageBlockProps) => {
             return deepCopy.map((i:ArticleItemType, number) => ({...i, order: number+1}));
         });
     };
-    const loadImageHandler: UploadProps['onChange'] = (info) => {
-        getBase64(info.file.originFileObj as FileType, (url) => {
-            setLoading(false);
-            setImageBase64(url);
-            props.setList((prev: ArticleItemType[]) => prev.map((i:ArticleItemType) => i.order == props.item.order ? {...i, text: imageBase64} : i))
-        });
+    const loadImageHandler: UploadProps['onChange'] = async (info) => {
+        const file = info.file.originFileObj as FileType;
+
+        if (file) {
+            try {
+                const options = {
+                    maxSizeMB: 1, // максимальный размер в MB
+                    maxWidthOrHeight: 1920, // максимальная ширина/высота
+                    useWebWorker: true,
+                    fileType: 'image/jpeg'
+                };
+
+                const compressedFile = await imageCompression(file, options);
+
+                getBase64(compressedFile, (url) => {
+                    setLoading(false);
+                    setImageBase64(url);
+                    props.setList((prev: ArticleItemType[]) =>
+                        prev.map((i: ArticleItemType) =>
+                            i.order == props.item.order ? {...i, text: url} : i
+                        )
+                    );
+                });
+            } catch (error) {
+                console.error('Ошибка при сжатии изображения:', error);
+                // Используем оригинальный файл в случае ошибки
+                getBase64(file, (url) => {
+                    setLoading(false);
+                    setImageBase64(url);
+                    props.setList((prev: ArticleItemType[]) =>
+                        prev.map((i: ArticleItemType) =>
+                            i.order == props.item.order ? {...i, text: url} : i
+                        )
+                    );
+                });
+            }
+        }
     };
     const changePositionHandler = (position:PositionType) => {
         props.setList((prev:ArticleItemType[]) => {
@@ -73,17 +105,18 @@ export const ImageBlock = (props:ImageBlockProps) => {
         </button>
     );
     // -----
-
     return (
         <Card style={{width: '100%'}}>
             <Flex style={{width: '100%'}} justify={'space-evenly'}>
                 <Flex style={{width: '83%'}} vertical>
                     <Tag color={'processing'} style={{width: 70, marginBottom: 5}}>Номер: {order}</Tag>
                     <Flex align={'center'} justify={'space-evenly'}>
-                        <Image
-                            width={200}
-                            src={`${host}/api/articleImages/${props.item.text}/`}
-                        />
+                        {(props.item.text && !props.item.text.startsWith('data')) &&
+                            <Image
+                                width={200}
+                                src={`${host}/api/articleImages/${props.item.text}/`}
+                            />
+                        }
                         <Upload
                             name="avatar"
                             listType="picture-card"

@@ -83,6 +83,13 @@ export const Navbar = () => {
         }
     }, []);
     useEffect(() => {
+        setCurrentMenuItem(() => {
+            if (location.pathname === "/course_list") return 'course_list';
+            if (location.pathname === "/report") return 'report';
+            return "course_list";
+        });
+    }, [location]);
+    useEffect(() => {
         if (verifyTokenIsError && refreshToken) {
             refreshTokenRequest({'refresh': refreshToken})
         }
