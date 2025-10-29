@@ -16,11 +16,18 @@ export const TestReport = (props: PropsType) => {
     const [filteredData, setFilteredData] = React.useState<CalculatedTestModel[]>([]);
 
     useEffect(() => {
-        setFilteredData(props.data.filter((record) => {
+        let filteredDataBySelectedGroup = props.data.filter((record) => {
             if (record.user.groups.length == 0) return false;
             return record.user.groups[0].id == props.selectedGroupId && record.test.id == props.selectedTestId.toString();
-        }));
-    }, []);
+        });
+        let uniqueDataByUsers = filteredDataBySelectedGroup.reduce((acc:CalculatedTestModel[], record:CalculatedTestModel) => {
+            if (!acc.find((r) => r.user.id == record.user.id)) {
+                return acc.concat([record]);
+            }
+            return acc;
+        }, []);
+        setFilteredData(uniqueDataByUsers);
+    }, [props.selectedGroupId, props.selectedTestId]);
 
     const columns: TableProps<CalculatedTestModel>['columns'] = [
         {
@@ -42,15 +49,28 @@ export const TestReport = (props: PropsType) => {
             render: (_, record) => (<div>{record.test.title}</div>),
         },
         {
-            title: 'Результат',
+            title: 'Лучший результат',
             dataIndex: 'test_user_question_answer_list',
             key: 'mark',
             render: (_, record) => {
-                let goodAnswersCount = record.test_user_question_answer_list.reduce((acc: number, result) => {
-                    if (result.answer.isCorrect) return acc + 1;
-                    return acc;
-                }, 0);
-                return (<div>{(goodAnswersCount / record.test.questions.length * 100)}%</div>);
+                let bestAnswerCount = -1;
+                props.data.filter((r:CalculatedTestModel) => r.user.id == record.user.id).map((r1:CalculatedTestModel) => {
+                    let goodAnswersCount = r1.test_user_question_answer_list.reduce((acc: number, result) => {
+                        if (result.answer.isCorrect) return acc + 1;
+                        return acc;
+                    }, 0);
+                    if (goodAnswersCount > bestAnswerCount)
+                        bestAnswerCount = goodAnswersCount
+                });
+                return (<div>{(bestAnswerCount / record.test.questions.length * 100)}%</div>);
+            },
+        },
+        {
+            title: 'Всего попыток',
+            dataIndex: 'tries_count',
+            key: 'tries_count',
+            render: (_, record) => {
+                return (<div>{props.data.filter((r:CalculatedTestModel) => r.user.id == record.user.id).length}</div>);
             },
         },
     ];

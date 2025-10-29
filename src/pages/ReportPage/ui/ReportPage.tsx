@@ -209,7 +209,7 @@ export const ReportPage = () => {
             },
         },
         {
-            title: 'Результат',
+            title: 'Лучший результат',
             dataIndex: 'test_user_question_answer_list',
             key: 'mark',
             render: (_, record) => {

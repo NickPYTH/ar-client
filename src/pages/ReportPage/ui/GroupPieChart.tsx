@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Line } from '@ant-design/plots';
+import {Line, Pie} from '@ant-design/plots';
 import {CalculatedTestModel} from "entities/CalculatedTestModel";
 
 type PropsType = {
@@ -10,49 +10,53 @@ export const GroupPieChart = (props:PropsType) => {
     const [data, setData] = useState<any[]>([]);
 
     useEffect(() => {
-        let preparedRecords:{question: string, user: string, points: number}[] = [];
+        let preparedRecords:{type: string, value: number}[] = [
+            {type: "Не сдал", value: 0},
+            {type: "Удов", value: 0},
+            {type: "Хорошо", value: 0},
+            {type: "Отлично", value: 0}
+        ];
         props.data.forEach((record) => {
-            record.test_user_question_answer_list.forEach((questionUserPoints) => {
-                let preparedRecord = preparedRecords.find((preparedRecord) =>
-                    preparedRecord.question === questionUserPoints.question.title &&
-                    preparedRecord.user === questionUserPoints.user.username
-                );
-                if (preparedRecord == undefined) {
-                    let preparedQuestionUserPoints = {
-                        question: questionUserPoints.question.title,
-                        user: questionUserPoints.user.username,
-                        points: 0
-                    };
-                    if (questionUserPoints.answer.isCorrect) preparedQuestionUserPoints.points += 1;
-                    preparedRecords.push(preparedQuestionUserPoints);
-                } else {
-                    if (questionUserPoints.answer.isCorrect) preparedRecord.points += 1;
-                }
-           });
+            let correctAnswers = record.test_user_question_answer_list.filter((a) => a.answer.isCorrect).length;
+            let percent = correctAnswers / record.test_user_question_answer_list.length;
+            if (preparedRecords.find((pr) => pr.type == "Не сдал") && percent < 0.5){
+                let preparedRecord = preparedRecords.find((pr) => pr.type == "Не сдал");
+                if (preparedRecord) preparedRecord.value += 1;
+            }
+            if (preparedRecords.find((pr) => pr.type == "Удов") && percent > 0.5 && percent < 0.61){
+                let preparedRecord = preparedRecords.find((pr) => pr.type == "Удов");
+                if (preparedRecord) preparedRecord.value += 1;
+            }
+            if (preparedRecords.find((pr) => pr.type == "Хорошо") && percent > 0.61 && percent < 0.81){
+                let preparedRecord = preparedRecords.find((pr) => pr.type == "Хорошо");
+                if (preparedRecord) preparedRecord.value += 1;
+            }
+            if (preparedRecords.find((pr) => pr.type == "Отлично") && percent > 0.61 && percent < 0.81){
+                let preparedRecord = preparedRecords.find((pr) => pr.type == "Отлично");
+                if (preparedRecord) preparedRecord.value += 1;
+            }
         });
         setData(preparedRecords);
-    }, []);
-
-    console.log(data)
+    }, [props]);
 
     const config = {
         data,
-        xField: 'question',
-        yField: 'points',
-        seriesField: 'user',
-        legend: {
-            position: 'top',
+        angleField: 'value',
+        colorField: 'type',
+        label: {
+            text: 'type',
+            style: {
+                fontWeight: 'bold',
+            },
         },
-        smooth: true,
-        // @TODO 后续会换一种动画方式
-        animation: {
-            appear: {
-                animation: 'path-in',
-                duration: 5000,
+        legend: {
+            color: {
+                title: true,
+                position: 'left',
+                rowPadding: 5,
             },
         },
     };
 
-    //@ts-ignore
-    return <Line style={{width: "65vw"}} {...config} />;
+    return <Pie {...config} />;
 };
